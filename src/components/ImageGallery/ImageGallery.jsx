@@ -4,6 +4,7 @@ import { Component } from 'react';
 import { fetchImages } from '../../service/api-service';
 import { toast } from 'react-toastify';
 import { Gallery } from './ImageGallery.styled';
+import Loader from 'components/Loader';
 
 const Status = {
   IDLE: 'idle',
@@ -54,18 +55,24 @@ class ImageGallery extends Component {
 
   render() {
     return (
-      <Gallery>
-        {this.state.images.map(({ id, webformatURL, tags, largeImageURL }) => {
-          return (
-            <ImageGalleryItem
-              key={id}
-              url={webformatURL}
-              tags={tags}
-              largeImg={largeImageURL}
-            />
-          );
-        })}
-      </Gallery>
+      <>
+        {this.state.status === 'pending' && <Loader />}
+
+        <Gallery>
+          {this.state.images.map(
+            ({ id, webformatURL, tags, largeImageURL }) => {
+              return (
+                <ImageGalleryItem
+                  key={id}
+                  url={webformatURL}
+                  tags={tags}
+                  largeImg={largeImageURL}
+                />
+              );
+            }
+          )}
+        </Gallery>
+      </>
     );
   }
 }
