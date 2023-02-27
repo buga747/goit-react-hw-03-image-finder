@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { createPortal } from 'react-dom';
 import { Overlay, Modal } from './Modal.styled';
+import PropTypes from 'prop-types';
+
 const modalRoot = document.querySelector('#modal-root');
 
 class ModalPhoto extends Component {
@@ -11,28 +13,36 @@ class ModalPhoto extends Component {
     window.removeEventListener('keydown', this.onEscPress);
   }
 
-  onEscPress = e => {
-    if (e.code === 'Escape') {
-      this.props.onClose();
+  onEscPress = event => {
+    if (event.code === 'Escape') {
+      this.props.onModalClose();
     }
   };
 
   onBackdropClick = event => {
     if (event.currentTarget === event.target) {
-      this.props.onClose();
+      this.props.onModalClose();
     }
   };
 
   render() {
+    const { largeImg, tags } = this.props;
+
     return createPortal(
       <Overlay onClick={this.onBackdropClick}>
         <Modal>
-          <img src={this.props.largeImg} alt="largeImg" />
+          <img src={largeImg} alt={tags} />
         </Modal>
       </Overlay>,
       modalRoot
     );
   }
 }
+
+ModalPhoto.propTypes = {
+  onModalClose: PropTypes.func.isRequired,
+  largeImg: PropTypes.string.isRequired,
+  tags: PropTypes.string.isRequired,
+};
 
 export default ModalPhoto;

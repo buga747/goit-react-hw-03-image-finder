@@ -1,7 +1,7 @@
 import { Component } from 'react';
 import { GalleryItem, Image } from './ImageGalleryItem.styled';
 import ModalPhoto from 'components/Modal';
-
+import PropTypes from 'prop-types';
 class ImageGalleryItem extends Component {
   state = {
     showModal: false,
@@ -14,16 +14,28 @@ class ImageGalleryItem extends Component {
   };
   render() {
     const { url, tags, largeImg } = this.props;
+    const { showModal } = this.state;
+
     return (
       <GalleryItem>
         <Image src={url} alt={tags} onClick={this.toggleModal} />
 
-        {this.state.showModal && (
-          <ModalPhoto onClose={this.toggleModal} largeImg={largeImg} />
+        {showModal && (
+          <ModalPhoto
+            onModalClose={this.toggleModal}
+            largeImg={largeImg}
+            tags={tags}
+          />
         )}
       </GalleryItem>
     );
   }
 }
+
+ImageGalleryItem.propTypes = {
+  url: PropTypes.string.isRequired,
+  tags: PropTypes.string.isRequired,
+  largeImg: PropTypes.string.isRequired,
+};
 
 export default ImageGalleryItem;

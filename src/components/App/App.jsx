@@ -10,20 +10,28 @@ import ImageGallery from '../ImageGallery/ImageGallery';
 class App extends Component {
   state = {
     query: '',
+    page: 1,
   };
 
-  searchResult = query => {
-    this.setState(query);
+  handleSearchSubmit = ({ query }) => {
+    this.setState({ query, page: 1 });
+  };
+
+  loadMore = () => {
+    this.setState(prevState => ({
+      page: prevState.page + 1,
+    }));
   };
 
   render() {
+    const { query, page } = this.state;
+
     return (
       <Container>
         <ToastContainer />
 
-        <Searchbar onSubmit={this.searchResult} />
-        <ImageGallery query={this.state.query} />
-        {/* глобальні стилі */}
+        <Searchbar onSubmit={this.handleSearchSubmit} />
+        <ImageGallery query={query} page={page} onLoad={this.loadMore} />
         <GlobalStyle />
       </Container>
     );

@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { Formik } from 'formik';
 import { Header, Form, Button, ButtonLabel, Input } from './Searchbar.styled';
-
+import { BiSearchAlt } from 'react-icons/bi';
 const Searchbar = ({ onSubmit }) => {
   return (
     <Header>
@@ -10,17 +10,16 @@ const Searchbar = ({ onSubmit }) => {
         initialValues={{ query: '' }}
         onSubmit={(values, actions) => {
           actions.resetForm();
-          if (
-            values.query.trim() !== ''
-            // this.props.searchQuery !== this.state.userSearchQuery
-          ) {
+          if (values.query.trim() !== '') {
             onSubmit(values);
           }
         }}
       >
         <Form>
           <Button type="submit">
-            <ButtonLabel></ButtonLabel>
+            <ButtonLabel>
+              <BiSearchAlt size={25} />
+            </ButtonLabel>
           </Button>
 
           <Input

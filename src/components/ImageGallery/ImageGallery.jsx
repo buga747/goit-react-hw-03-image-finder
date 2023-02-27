@@ -5,6 +5,7 @@ import { fetchImages } from '../../service/api-service';
 import { toast } from 'react-toastify';
 import { Gallery } from './ImageGallery.styled';
 import Loader from 'components/Loader';
+import Button from 'components/Button';
 
 const Status = {
   IDLE: 'idle',
@@ -15,63 +16,77 @@ const Status = {
 class ImageGallery extends Component {
   state = {
     status: Status.IDLE,
-    page: 1,
     error: null,
     images: [],
     totalHits: null,
+    showLoadMoreBtn: false,
   };
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevProps.query !== this.props.query) {
-      this.setState(() => ({
-        images: [],
-        page: 1,
+    if (
+      prevProps.page !== this.props.page ||
+      prevProps.query !== this.props.query
+    ) {
+      this.setState({
         status: Status.PENDING,
-      }));
+      });
 
-      fetchImages(1, this.props.query)
-        .then(imageSet => {
-          this.setState({
-            images: imageSet.hits,
-            page: this.state.page + 1,
-            status: Status.RESOLVED,
-            totalHits: imageSet.totalHits,
-          });
-          console.log(imageSet);
-          if (imageSet.totalHits !== 0) {
-            toast.success(
-              `Hooray!!! ${imageSet.totalHits} images were found for your request.`
-            );
+      fetchImages(this.props.page, this.props.query)
+        .then(data => {
+          console.log(data);
+          if (this.props.page === 1 && data.totalHits !== 0) {
+            toast.success(`We found ${data.totalHits} images!`);
+            this.setState({ images: [] });
           }
-          if (imageSet.totalHits === 0) {
+
+          if (data.totalHits === 0) {
             toast.error(
               `UpsOops!!! We did not find any images for this request. Try changing the query.`
             );
+          }
+
+          this.setState({
+            showLoadMoreBtn: true,
+            status: Status.RESOLVED,
+          });
+          this.setState(prevState => ({
+            images: [...prevState.images, ...data.hits],
+          }));
+
+          if (this.state.images.length + data.hits.length >= data.totalHits) {
+            this.setState({ showLoadMoreBtn: false });
           }
         })
         .catch(error => this.setState({ error, status: Status.REJECTED }));
     }
   }
 
+  loadMore = () => {
+    this.setState(prevState => ({
+      page: prevState.page + 1,
+    }));
+  };
+
   render() {
+    const { status, images, showLoadMoreBtn } = this.state;
+
     return (
       <>
-        {this.state.status === 'pending' && <Loader />}
+        {status === 'pending' && <Loader />}
 
         <Gallery>
-          {this.state.images.map(
-            ({ id, webformatURL, tags, largeImageURL }) => {
-              return (
-                <ImageGalleryItem
-                  key={id}
-                  url={webformatURL}
-                  tags={tags}
-                  largeImg={largeImageURL}
-                />
-              );
-            }
-          )}
+          {images.map(({ id, webformatURL, tags, largeImageURL }) => {
+            return (
+              <ImageGalleryItem
+                key={id}
+                url={webformatURL}
+                tags={tags}
+                largeImg={largeImageURL}
+              />
+            );
+          })}
         </Gallery>
+        {showLoadMoreBtn && <Button onClick={this.props.onLoad} />}
       </>
     );
   }
